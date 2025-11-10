@@ -1,0 +1,34 @@
+name: Deploy Front-end
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-push:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Autenticação no GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: teuusuario
+          password: ${{ secrets.GHCR_TOKEN }}
+
+      - name: Construir e enviar a imagem Docker
+        uses: docker/build-push-action@v6
+        with:
+          context: sgcmapp/
+          push: true
+          tags: ghcr.io/italofl/sgcmapp:latest
+
+  deploy:
+    needs: build-push
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy
+        uses: webacademyufac/deploy-action@main
+        with:
+          app-id: ${{ secrets.DEPLOY_FRONT_APP_ID }}
+          api-key: ${{ secrets.DEPLOY_FRONTEND_API_KEY }}

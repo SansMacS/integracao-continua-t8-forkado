@@ -1,0 +1,44 @@
+name: CI Front-end
+
+on:
+  push:
+    branches:
+      - "main"
+    paths:
+      - "sgcmapp/**"
+  pull_request:
+    paths:
+      - "sgcmapp/**"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v5
+
+      - name: Instalar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Instalar dependências
+        working-directory: sgcmapp/
+        run: npm ci
+
+      - name: Instalar Angular CLI
+        run: npm install -g @angular/cli@19.2.15
+
+      - name: Build de produção Angular
+        working-directory: sgcmapp/
+        run: ng build
+      - name: Upload artefatos para Docker (opcional)
+        uses: actions/upload-artifact@v4
+        with:
+          name: angular-dist
+          path: sgcmapp/dist/
+
